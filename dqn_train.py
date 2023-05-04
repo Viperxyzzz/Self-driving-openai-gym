@@ -1,4 +1,4 @@
-import gym
+import gymnasium as gym
 import numpy as np
 import random
 import math
@@ -11,9 +11,10 @@ import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
 from dqn_model import CNN
-from dqn_memory import ReplayMemory, Transition
+from replay_memory import ReplayMemory, Transition
 
 env = gym.make("CarRacing-v2")
+test_env = gym.make("CarRacing-v2", render_mode="human")
 
 # actions that agent can take
 # manually chosen action from continuous action space to discrete action space
@@ -48,7 +49,7 @@ MEMORY = ReplayMemory(2000)
 STEPS_DONE = 0
 
 # how many episodes to play
-NUM_EPISODES = 200
+NUM_EPISODES = 10
 # list of scores from each episode
 TOTAL_SCORES = []
 # list of average calculated scores in each run
@@ -173,7 +174,7 @@ for i_episode in range(NUM_EPISODES):
     wait_for_zoom()
     state, _, _ = get_res_state([0, 0, 0])
 
-    for t in range(10000):
+    for t in range(1000):
         # select current action
         action_index = select_action(state)
         action = ACTIONSPACE[action_index]
@@ -215,6 +216,13 @@ for i_episode in range(NUM_EPISODES):
     TOTAL_SCORES.append(total_reward)
     score_sliding = sum(TOTAL_SCORES) / len(TOTAL_SCORES)
     SCORE_AVG.append(score_sliding)
+
+    test_env.reset()
+    for _ in range(1000):
+        test_env.render()
+        action_index = select_action(state)
+        action = ACTIONSPACE[action_index]
+        env.step(action)
 
 # show graphs
 plt.plot(TOTAL_SCORES)
